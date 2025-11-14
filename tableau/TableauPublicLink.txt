@@ -1,1 +1,2 @@
-
+Tableau Public Dashboard:
+https://public.tableau.com/app/profile/daniel.grinin/viz/COVID-19GlobalDashboard_17630276514300/Dashboard1
