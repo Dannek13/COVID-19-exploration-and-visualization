@@ -6,6 +6,9 @@ The goal is to showcase practical data analysis skills — not to perform a scie
 
 The dataset contains **500k+ rows**, covers 5+ years, and was transformed into a clean relational model for analysis and visualization.
 
+## Tableau Dashboard
+**Dashboard:** https://public.tableau.com/views/COVID-19GlobalDashboard_17630276514300/Dashboard1?:language=en-US&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
+
 ## Key Skills Demonstrated
 
 ### SQL (MySQL)
@@ -29,9 +32,9 @@ The dataset contains **500k+ rows**, covers 5+ years, and was transformed into a
 - Combining multiple SQL outputs into a single dashboard
 
 ### Data Preparation
-- Splitting raw dataset into logical tables  
-- Removing unused columns  
-- Fixing empty-string → NULL inconsistencies  
-- Date standardization (YYYY-MM-DD)  
+- Splitting raw dataset into logical tables
+- Removing unused columns
+- Fixing empty-string → NULL inconsistencies
+- Date standardization (YYYY-MM-DD)
 - Excluding aggregated entities (World, income groups)  
 - Ensuring unique daily country-level entries
