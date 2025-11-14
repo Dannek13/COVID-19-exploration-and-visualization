@@ -1,44 +1,51 @@
--- COVID-19 Data Exploration and Visualisation Project
--- Author: D.Grinin
--- Description: Full SQL script used for data loading, cleaning, exploration and view creation
--- Language: Comments in Czech and English
+-- COVID-19 Data Exploration / Průzkum dat COVID-19
+-- Author / Autor: D.Grinin
+-- Description / Popis: 
+	-- Full SQL script used for: table creation, data loading, cleaning, exploration, view creation, query preparation for Tableau viz
+	-- Kompletní SQL skript pro: vytvoření tabulek, načtení dat z CSV, čištění a kontrolu dat, průzkumné dotazy, tvorbu view a přípravu pro Tableau vizualizace
+-- Language / Jazyk: Czech and English
+-- MySQL Workbench 8.0
 
--- Nejprve je potřeba vytvořitGROUP BY country, Population, date tabulky pro nahrání dat z .CSV, z důvodu velikosti souborů je lepší využít skriptu než rozhraní v MySQL
+-- 1. TABLE SETUP
+
+-- Nejprve je potřeba vytvořit tabulky pro nahrání dat z CSV, z důvodu velikosti souborů je lepší využít skriptu než rozhraní v MySQL
 -- Aby se předešlo případným chybám přidám DROP TABLE IF EXISTS
--- Vytvářím dvě tabulky 'CovidDeaths' a 'CovidVaccinations', propojeny jsou pomocí FOREIGN KEY
+-- Vytvořím dvě tabulky 'CovidDeaths' a 'CovidVaccinations', propojeny jsou pomocí FOREIGN KEY
 
 -- EN: First I drop the tables if they already exist (DROP TABLE IF EXISTS) to prevent errors when running the script multiple times.
 -- Then I create two tables 'CovidDeaths' and 'CovidVaccinations'. The tables are linked using a FOREIGN KEY
 
 DROP TABLE IF EXISTS CovidDeaths;
 CREATE TABLE CovidDeaths (
-continent VARCHAR (255),
-code VARCHAR (255),
-country VARCHAR (255),
-date DATE,
-population BIGINT,
-total_cases BIGINT,
-new_cases INT,
-total_deaths BIGINT,
-new_deaths INT,
-PRIMARY KEY (country, date)
+	continent 		VARCHAR (255),
+	code 			VARCHAR (255),
+	country 		VARCHAR (255),
+	date 			DATE,
+	population 		BIGINT,
+	total_cases 	BIGINT,
+	new_cases 		INT,
+	total_deaths 	BIGINT,
+	new_deaths 		INT,
+	PRIMARY KEY (country, date)
 );
 
 DROP TABLE IF EXISTS CovidVaccinations;
 CREATE TABLE CovidVaccinations (
-continent VARCHAR (255),
-code VARCHAR (255),
-country VARCHAR (255),
-date DATE,
-total_tests BIGINT,
-new_tests INT,
-new_vaccinations INT,
-total_vaccinations BIGINT,
-people_vaccinated INT,
-PRIMARY KEY (country, date),
-FOREIGN KEY (country, date) REFERENCES CovidDeaths (country, date)
-ON DELETE CASCADE
+	continent 			VARCHAR (255),
+	code 				VARCHAR (255),
+	country 			VARCHAR (255),
+	date 				DATE,
+	total_tests 		BIGINT,
+	new_tests 			INT,
+	new_vaccinations 	INT,
+	total_vaccinations 	BIGINT,
+	people_vaccinated 	INT,
+	PRIMARY KEY (country, date),
+	FOREIGN KEY (country, date) REFERENCES CovidDeaths (country, date)
+		ON DELETE CASCADE
 );
+
+-- 2. DATA LOADING
 
 -- Nyní mohu nahrát data z lokálních souborů .csv pomocí příkazu LOAD DATA LOCAL INFILE
 -- Hodnoty jsou odděleny středníkem (;), textové hodnoty uzavřeny v uvozovkách ("), 
@@ -49,19 +56,21 @@ ON DELETE CASCADE
 -- Values are separated by semicolons (;), text values enclosed in double quotes (") and rows are separated by newline characters (\n).
 -- The IGNORE 1 ROWS option skips the header row (column names).
 
-LOAD DATA LOCAL INFILE 'C:/.../.../.../SQL projekt/CovidDeaths.csv'
+LOAD DATA LOCAL INFILE '.../path/to/CovidDeaths.csv'
 INTO TABLE CovidDeaths
 FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
 
-LOAD DATA LOCAL INFILE 'C:/.../.../.../SQL projekt/CovidVaccinations.csv'
+LOAD DATA LOCAL INFILE '.../path/to/CovidVaccinations.csv'
 INTO TABLE CovidVaccinations
 FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 ROWS;
+
+-- 3. BASIC DATA CHECKS
 
 -- Nyní jsou tabulky připraveny k použití
 -- Výběr a kontrola hlavních dat, která budu používat
@@ -70,6 +79,8 @@ IGNORE 1 ROWS;
 SELECT country, date, total_cases, new_cases, total_deaths, population 
 FROM coviddeaths
 ORDER BY country, date;
+
+-- 4. EXPLORATION QUERIES
 
 /*Porovnání celkového počtu případů COVID-19 s celkovým počtem úmrtí v České republice
 -Použil jsem funkci LIKE '%czech%', jelikož si nejsem jist, jaký název autoři dat použili (Czechia vs. Czech Republic, obdobně jako United States vs. United States of America).
@@ -93,7 +104,7 @@ ORDER BY country, date;
 
 -- EN: Peak of the COVID-19 pandemic in each country
 -- Using the RANK() window function and subquery in the FROM clause to find the highest number of confirmed cases in one day per country.
--- Used new_cases > 0 in WHERE clause to filter out countries with no data 
+-- Used new_cases > 0 in WHERE clause to filter out countries with no reported cases
 
 SELECT country, new_cases, date
 FROM (
@@ -106,7 +117,7 @@ WHERE Ranks = 1 AND new_cases > 0;
 -- Jedná se pouze o velmi hrubý odhad. Nezohledňuje opětovné onemocnění, zároveň populace je pro každé datum v dané zemi stejné. 
 
 -- EN: Percentage of population infected with covid 
--- This is very rough estimate only, not fully accurate. I't doesn't account for people infected multiple times and population is constant for every date in this table
+-- This is very rough estimate only, not fully accurate. It doesn't account for people infected multiple times and population is constant for every date in this table
 
 SELECT country, date, total_cases, total_deaths, population, 
 	ROUND((total_cases/population)*100,2) AS infection_rate
@@ -143,7 +154,7 @@ SET SQL_SAFE_UPDATES = 1;
 -- Již spojené záznamy jako World nebo World excl. China jsem vyloučil pomocí podmínky ve WHERE
 
 -- EN: Countries ordered by total deaths
--- Filtered out aggregated entries like World, World excl. China .... using the WHERE function
+-- Filtered out aggregated entries like World, World excl. China .... using the WHERE clause
 
 SELECT country, MAX(total_deaths) AS DeathCount
 FROM coviddeaths
@@ -158,7 +169,7 @@ ORDER BY DeathCount DESC;
 
 -- EN: Now I want to look at the numbers of deaths grouped by continent
 -- This dataset already includes aggregate data by continents, but it also contains some unrelated entries such as 'Summer Olympics 2020' or 'high-income countries'
--- This data are not needed for now, so I specify which records I want by using a WHERE function and IN() clause
+-- This data are not needed for now, so I specify which records I want by using a WHERE clause and IN() clause
 -- (2/4) This Query will be used for visualization in Tableau Public
 
 SELECT country as continent, MAX(total_deaths) AS DeathCount
@@ -190,10 +201,12 @@ ORDER BY date;
 -- Only records with a specified continentResults are ordered by highest infection percentage.
 -- (3/4) Used for Tableau visualization
 
-SELECT country, population, date, total_cases as InfectionCount, (total_cases/population)*100 AS PercentPopulationInfected
+SELECT country, population, date, 
+	total_cases as InfectionCount, 
+	(total_cases/population)*100 AS PercentPopulationInfected
 FROM CovidDeaths
 WHERE continent IS NOT NULL AND date < '2025-09-28'
--- GROUP BY country, Population, date
+GROUP BY country, Population, date
 HAVING PercentPopulationInfected IS NOT NULL
 ORDER BY PercentPopulationInfected DESC;
 
@@ -280,13 +293,14 @@ cumulative_vaccinations bigint
 
 INSERT INTO VaccinationDoses
 SELECT cd.continent, cd.country, cd.date, population, new_vaccinations,
-SUM(cv.new_vaccinations) OVER (PARTITION BY cd.country ORDER BY cd.date) AS cumulative_vaccinations
+	SUM(cv.new_vaccinations) OVER (PARTITION BY cd.country ORDER BY cd.date) AS cumulative_vaccinations
 FROM coviddeaths cd
 JOIN covidvaccinations cv
 	ON cd.country = cv.country
 	AND cd.date = cv.date;
 
-SELECT *, ROUND((cumulative_vaccinations/population)*100,2) AS doses_per_100_people
+SELECT *, 
+	ROUND((cumulative_vaccinations/population)*100,2) AS doses_per_100_people
 FROM VaccinationDoses;
 
 -- Zobrazení dne, kdy jednotlivé země překročily hranici 50% proočkovanosti populace seřazené podle datumu
@@ -346,24 +360,25 @@ ORDER BY date;
 -- EN: TOP 10 countries with the highest infection rate and their vaccination rate
 
 SELECT cd.country, 
-ROUND((MAX(total_cases)/ population) * 100,2) AS infection_rate, 
-ROUND((MAX(people_vaccinated)/population)*100,2) AS vaccination_rate
+	ROUND((MAX(total_cases)/ population) * 100,2) AS infection_rate, 
+	ROUND((MAX(people_vaccinated)/population)*100,2) AS vaccination_rate
 FROM coviddeaths cd 
-JOIN covidvaccinations cv USING (country, date)
+JOIN covidvaccinations cv 
+	USING (country, date)
 WHERE cd.continent IS NOT NULL
 GROUP BY country, population
 ORDER BY infection_rate DESC
 LIMIT 10;
 
--- Vytvoření view pro uložení dat o procentu očkované populace k následným vizualizacím
+-- Vytvoření view pro uložení dat o procentu očkované populace
 -- Window funkce SUM() OVER, která kumuluje počet očkování zemí v čase (ve vytvořeném view)
 
--- EN: Created view to store data for visualizations
+-- EN: Created view to store data of vaccination rates 
 -- Window function SUM() OVER partitioned by country to accumulate vaccinations by date (view)
 
-CREATE VIEW VaccinationDoses AS
+CREATE VIEW Vaccinations AS
 SELECT cd.continent, cd.country, cd.date, population, new_vaccinations, 
-SUM(new_vaccinations) OVER (PARTITION BY cd.country ORDER BY cd.date) AS cumulative_vaccinations
+	SUM(new_vaccinations) OVER (PARTITION BY cd.country ORDER BY cd.date) AS cumulative_vaccinations
 FROM coviddeaths cd
 JOIN covidvaccinations cv
 	USING (country, date)
