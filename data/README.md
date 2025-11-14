@@ -1,11 +1,19 @@
-# Raw Data Source
+# Data Overview
 
-Originální dataset použitý v tomto projektu pochází z:
+This folder contains the datasets used in this project.
 
-The raw dataset used in this project comes from:
+### 🔗 Raw Data Source
+The original COVID-19 dataset used in this project comes from:
 
-[https://ourworldindata.org/covid-deaths](https://catalog.ourworldindata.org/garden/covid/latest/compact/compact.csv)
+https://ourworldindata.org/covid-deaths
 
-Dataset není přiložen přímo v repository kvůli velikosti a licenci.
+The raw dataset is not included directly in this repository due to size limitations and licensing restrictions.
 
-The dataset is not included directly in this repository due to size limitations and licensing restrictions.
+### 🧹 Cleaned Data
+The file `cleaned_covid_data.zip` contains all cleaned datasets used for SQL analysis and Tableau visualizations.
+
+These include:
+- coviddeaths.csv  
+- covidvaccinations.csv  
+
+All transformations are performed in the SQL scripts found in the `/sql/` folder.
