@@ -44,16 +44,18 @@ The dataset contains **500k+ rows**, spans over 5+ years, and was transformed in
 
 ## Repository Structure
 /data
-   cleaned_data_covid.zip   - cleaned datasets used for SQL & Tableau
-   README.md                - source attribution and dataset details
-
+   cleaned_data_covid.zip - cleaned datasets used for SQL & Tableau
+   README.md - source attribution and dataset details
+   
 /sql
-   covid_data_exploration.sql      - full SQL workflow: loading, cleaning, exploration
-   tableau_queries.sql             - queries used in Tableau dashboards
-
-/README.md                 - main project documentation
+   covid_data_exploration.sql - full SQL workflow: loading, cleaning, exploration
+   tableau_queries.sql - queries used in Tableau dashboards
+   
+README.md - main project documentation
 
 ## Dataset Source
 The dataset used in this project comes from:
+
 Our World in Data – COVID-19 https://ourworldindata.org/covid-deaths
+
 The raw dataset is not included in this repository due to size and licensing limitations.
