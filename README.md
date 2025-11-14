@@ -43,13 +43,13 @@ The dataset contains **500k+ rows**, spans over 5+ years, and was transformed in
 - Ensuring unique daily country-level entries
 
 ## Repository Structure
-/data
-   cleaned_data_covid.zip - cleaned datasets used for SQL & Tableau
-   README.md - source attribution and dataset details
+/data  
+   cleaned_data_covid.zip - cleaned datasets used for SQL & Tableau  
+   README.md - source attribution and dataset details  
    
-/sql
-   covid_data_exploration.sql - full SQL workflow: loading, cleaning, exploration
-   tableau_queries.sql - queries used in Tableau dashboards
+/sql  
+   covid_data_exploration.sql - full SQL workflow: loading, cleaning, exploration  
+   tableau_queries.sql - queries used in Tableau dashboards  
    
 README.md - main project documentation
 
